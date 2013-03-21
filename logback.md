@@ -14,19 +14,45 @@ Log4j-extras kunne bidra med zipping og tidsbasert rulling, men kunne ikke rydde
 Vi så da videre på at logback støtte de kravene vi hadde, nemlig; tidsbasert rulling, zipping og ikke minst opprydning av loggfilene. Den endelige løsningen ble dermed: SLF4J over logback.
 
 # SLF4J
-SLF4J er kun et api og ingen egen loggimplementasjon. Isteden er tanken at man programmerer mot ett felles API, men at man enkelt kan bytte ut loggimplementasjon kun ved å legge inn korrekt avhengighet på classpathen. 
+SLF4J er kun et api og ingen egen loggimplementasjon, men fungerer istedet som en abstraksjon for andre loggrammeverk. Isteden programmerer man mot ett felles API, men at man enkelt kan bytte ut loggimplementasjon kun ved å bytte ut en avhengighet til en annen loggimplementasjonen.
 
-Videre eksisterer det ulike bindings som man trenger i tillegg til den faktiske implementasjonen. slf4j-log4j12 vil route alle kall til slfj4-apiet til log4j og sluttresultatet vil bli helt likt som om man kun brukte log4j. 
+Videre eksisterer det ulike bindings hvor hver binding korresponderer til en loggimplementasjon. Figuren nedenfor viser SLF4J, en binding for log4j og selve log4j-implementasjonen henger sammen.
 
-Ved å kun bytte ut ulike jarfiler er det dermed mulig å endre loggimplementasjon uten å endre en eneste kodelinje!
+!(img/slf4j-binding-log4j.png)
+
+Ved et slikt oppsett vil selve loggingen bli seendes helt lik ut som hvis man brukte log4j direkte.
 
 # Logback
-Er en videreføring av log4j. Tilbyr alt log4j tilbyr i tillegg til mye mer.
-Har såkalt native støtte for slf4j. Logback implementerer interface til slf4j som gjør at det ikke er nødvendig å bruke en egen binding som trengs for å få log4j til å fungere med slf4j.
+Er en videreføring av log4j som tilbyr alt log4j tilbyr i tillegg til mye mer. Logback har såkalt native støtte for slf4j, som betyr at logback implementerer interfacet til slf4j som gjør at det ikke er nødvendig å bruke en egen binding som trengs for å få log4j til å fungere med slf4j.
 
-Kan konfigureres i xml eller til og med groovy.
+Figuren nedenfor viser et typisk oppsett med logback. Legg spesielt merke til at det ikke er nødvendig med en egen binding mellom slf4j og logback. Dette er fordi logback implementerer slf4j sitt Logger-interface, og det er derfor ikke nødvendig å ha en egen binding som trengs når log4j brukes.
 
---- Eksempelkonfigurasjon
+!(img/slf4j-binding-logback.png)
+
+Logback konfigureres i xml eller til og med groovy. Nedenfor vises en eksempelkonfigurasjon.
+
+	
+	.xml
+	<?xml version="1.0" encoding="UTF-8" ?>
+	<configuration>
+
+	    <appender name="debugFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	        <file>/app/logs/logback.log</file>
+
+	        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+	            <fileNamePattern>/app/logs/logback-%d{yyyy-MM-dd}.gz</fileNamePattern>
+	            <maxHistory>90</maxHistory>
+	        </rollingPolicy>
+
+	        <encoder>
+	            <pattern>%d [%-5p] %X{user} [%t] - %m -- %C%n</pattern>
+	        </encoder>
+	    </appender>
+
+	    <logger name="org.springframework" level="ERROR" />
+
+	</configuration>
+
 
 # Omskriving til logback
 Hva trengs for å skrive om applikasjonen til logback?.
