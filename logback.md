@@ -18,7 +18,7 @@ SLF4J er kun et api og ingen egen loggimplementasjon, men fungerer istedet som e
 
 Videre eksisterer det ulike bindings hvor hver binding korresponderer til en loggimplementasjon. Figuren nedenfor viser SLF4J, en binding for log4j og selve log4j-implementasjonen henger sammen.
 
-!(img/slf4j-binding-log4j.png)
+!(https://raw.github.com/henriwi/writings/master/img/slf4j-binding-log4j.png
 
 Ved et slikt oppsett vil selve loggingen bli seendes helt lik ut som hvis man brukte log4j direkte.
 
@@ -27,12 +27,12 @@ Er en videreføring av log4j som tilbyr alt log4j tilbyr i tillegg til mye mer. 
 
 Figuren nedenfor viser et typisk oppsett med logback. Legg spesielt merke til at det ikke er nødvendig med en egen binding mellom slf4j og logback. Dette er fordi logback implementerer slf4j sitt Logger-interface, og det er derfor ikke nødvendig å ha en egen binding som trengs når log4j brukes.
 
-!(img/slf4j-binding-logback.png)
+!(https://raw.github.com/henriwi/writings/master/img/slf4j-binding-logback.png)
 
 Logback konfigureres i xml eller til og med groovy. Nedenfor vises en eksempelkonfigurasjon.
 
 	
-	.xml
+	```xml
 	<?xml version="1.0" encoding="UTF-8" ?>
 	<configuration>
 
@@ -52,7 +52,7 @@ Logback konfigureres i xml eller til og med groovy. Nedenfor vises en eksempelko
 	    <logger name="org.springframework" level="ERROR" />
 
 	</configuration>
-
+	```
 
 # Omskriving til logback
 Hva trengs for å skrive om applikasjonen til logback?.
