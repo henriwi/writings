@@ -1,4 +1,2 @@
-writings
+Writings
 ========
-
-Various blog posts and other writings

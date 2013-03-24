@@ -1,20 +1,22 @@
 # Intro
-Log4j har vært, og er fortsatt, loggrammeverket som benyttes for veldig mange Java-applikasjoner. Selv om log4j ikke lenger blir vedlikeholdt er det fortsatt mange som bruker dette og ikke har mulighet til å gå over til logback.
+Log4j har vært, og er fortsatt, loggrammeverket som benyttes av veldig mange Java-applikasjoner. Logback er ikke et spesielt nytt logrammeverk (release av versjon 0.1 ble gjort i 2006, og versjon 1.0 i 2011), men det er fortsatt mange nye applikasjoner som ikke bruker logback, men velger log4j. Selv om log4j fortsatt gjør nytten for mange, inneholder logback mange funksjoner som ikke støttes av log4j. I tillegg har logback innebgyd støtte for slf4j (mer om dette senere), noe som kort fortalt betyr at det er senere mulig å bytte ut logrammeverket ved kun å bytte en enkelt jar-fil med en annen.
 
-Logback har tatt over for log4j og tilbyr mange features som ikke er mulig å få til med log4j. Flere mener at logback vil bli brukt mer og mer, og at log4j gradvis vil bli faset ut. Det kan derfor lønne seg å skrive om applikasjonene som i dag bruker log4j til logback. Men hvordan gjøres dette? Hva er logback og hvor kommer SLF4J inne i bildet? I dette blogginnlegget vil jeg forklare hvordan man skriver om en applikasjon som bruker log4j til å bruke logback, og hvilke erfaringer vi har gjort oss med dette arbeidet.
+Selv om i teorien er enkelt å skrive om en applikasjon fra log4j til logback kan man støte på flere hindringer som gjør det vanskeligere enn man først regnet med. Denne bloggposten viser hvordan man går frem for å skrive om en eksisterende applikasjon fra å bruke log4j til å bruke logback som loggrammeverk, og tar utgangspunkt i erfaringer vi har gjort oss på vårt prosjekt. Forhåpentligvis kan det være med å bidra til at andre ikke støter på de samme utfordringene som vi gjorde. I tillegg skal vi vise hvordan man kan sikre at logging fra rammeverk brukt av applikasjonen kan bli håndtert av det samme loggoppsettet som applikasjonen selv bruker. I tillegg skal jeg komme med noen tips og erfaringer som vi har gjort oss når vi har gjort denne jobben på vårt prosjekt.
 
 <!-- Hva slags krav hadde vi til vår applikasjon - motivasjon for hvorfor vi ønsket å endre. -->
 <!-- Zipping, tidsbasert rulling og ikke minst opprydning. -->
 
 # Alternativer
-Applikasjonen hadde allerede log4j som loggrammeverk. Derfor var det naturlig å se på hva vi kunne få til ved å bruke log4j eller versjoner av log4j hvor omskriving av applikasjonen ikke var nødvendig.
+Før jeg viser hvordan man går frem for å bytte ut log4j med logback, tenkte jeg å si litt om motivasjon og grunnen til at vi ønsket å gå fra log4j. Vi hadde en stor applikasjon som logget mye, og vi ønsket å få til en form for utvidet logging. Det vil si at vi ønsket at applikasjonen logget lenger tilbake, at loggfilene ble zippet etter hvert og ikke minst at applikasjonen selv skulle rydde opp og fjerne gamle loggfiler. Det siste punktet var spesielt viktig for oss da vi ikke ønsket å involvere drift i dette arbeidet.
 
-Log4j-extras kunne bidra med zipping og tidsbasert rulling, men kunne ikke rydde opp etter seg. Vi ønsket ikke å involere drift i denne saken og dermed skape en avhengighet til dem, og log4j extras ble derfor vurdert til å ikke være et alternativ.
+Siden applikasjonen allerede hadde log4j som loggrammeverk, var det naturlig å se på hva vi kunne få til ved å bruke log4j eller versjoner av log4j hvor omskriving av applikasjonen ikke var nødvendig. Log4j hadde ikke mulighet til å oppfylle de kravene vi hadde, da log4j ikke kan zippe gamle loggfiler. Det eksisterer en ekstra "pakke" til log4j som heter log4j-extras og med denne pakken var applikasjonen i stand til å zippe gamle loggfiler, men klarte kunne å rydde opp etter seg. 
 
-Vi så da videre på at logback støtte de kravene vi hadde, nemlig; tidsbasert rulling, zipping og ikke minst opprydning av loggfilene. Den endelige løsningen ble dermed: SLF4J over logback.
+Vi ble derfor nødt til å se på andre alternativer og logback ble ganske raskt det beste alternativet. Logback hadde støtte for alle de kravene vi hadde, nemlig; tidsbasert rulling, zipping og ikke minst opprydning av loggfilene. Den endelige løsningen ble dermed: SLF4J over logback.
 
 # SLF4J
-SLF4J er kun et api og ingen egen loggimplementasjon, men fungerer istedet som en abstraksjon for andre loggrammeverk. Isteden programmerer man mot ett felles API, men at man enkelt kan bytte ut loggimplementasjon kun ved å bytte ut en avhengighet til en annen loggimplementasjonen.
+SLF4J er et rammeverk for logging som er ment å fungere som en fasade eller en abstraksjon for andre loggrammeverk. Et viktig poeng er at slf4j ikke er en loggimplementasjon, x
+
+ men fungerer istedet som en abstraksjon for andre loggrammeverk. Isteden programmerer man mot ett felles API, men at man enkelt kan bytte ut loggimplementasjon kun ved å bytte ut en avhengighet til en annen loggimplementasjonen.
 
 Videre eksisterer det ulike bindings hvor hver binding korresponderer til en loggimplementasjon. Figuren nedenfor viser SLF4J, en binding for log4j og selve log4j-implementasjonen henger sammen.
 
@@ -31,28 +33,44 @@ Figuren nedenfor viser et typisk oppsett med logback. Legg spesielt merke til at
 
 Logback konfigureres i xml eller til og med groovy. Nedenfor vises en eksempelkonfigurasjon.
 
-	
-	```xml
-	<?xml version="1.0" encoding="UTF-8" ?>
-	<configuration>
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
 
-	    <appender name="debugFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-	        <file>/app/logs/logback.log</file>
+    <appender name="debugFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/app/logs/logback.log</file>
 
-	        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-	            <fileNamePattern>/app/logs/logback-%d{yyyy-MM-dd}.gz</fileNamePattern>
-	            <maxHistory>90</maxHistory>
-	        </rollingPolicy>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/app/logs/logback-%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
 
-	        <encoder>
-	            <pattern>%d [%-5p] %X{user} [%t] - %m -- %C%n</pattern>
-	        </encoder>
-	    </appender>
+        <encoder>
+            <pattern>%d [%-5p] %X{user} [%t] - %m -- %C%n</pattern>
+        </encoder>
+    </appender>
 
-	    <logger name="org.springframework" level="ERROR" />
-
-	</configuration>
-	```
+    <logger name="org.springframework" level="ERROR" />
+</configuration>
+```
 
 # Omskriving til logback
-Hva trengs for å skrive om applikasjonen til logback?.
+Hva trengs for å skrive om applikasjonen til logback?
+
+For å skrive om en applikasjon fra log4j sitt API til slf4j sitt API, trengs det en liten endring som vist nedenfor. I log4j vil en logger bli initalisert på følgende måte:
+
+```java
+Logger logger = Logger.getLogger(HelloWorld.class);
+logger.info("Hello World");
+```
+
+I slf4j vil loggeren initialiseres på følgende måte:
+
+
+```java
+Logger logger = LoggerFactory.getLogger(HelloWorld.class);
+logger.info("Hello World");
+```
+
+Bortsett fra under selve initaliseringen er API-et til slf4j ganske likt som log4j sitt API, og til "normalt" bruk vil man ikke merke spesielt stor forskjell.
+
