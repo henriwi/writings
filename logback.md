@@ -74,3 +74,5 @@ logger.info("Hello World");
 
 Bortsett fra under selve initaliseringen er API-et til slf4j ganske likt som log4j sitt API, og til "normalt" bruk vil man ikke merke spesielt stor forskjell.
 
+# SLF4J Bridges
+En ting er å skrive om applikasjonen til å bruke logback, men det er også ønskelig å få kontroll over applikasjones rammeverk sin logging, og kunne kontrollere denne loggingen med samme konfigurasjon som applikasjonen.
