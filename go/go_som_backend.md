@@ -30,21 +30,27 @@ func main() {
 ```
 
 # Channels og go-routines
-En av de mest spennende tingene ved Go er hvordan parallellitet og synkronisering er bygd inn i språket. 
+Foreløpig har vi kun sett på de mest grunnleggende tingene med Go, og som den observante leser du er, har du kanskje lurt på hva som gjør Go så annerledes og spennende som jeg snakket om i introduksjonen? Det skal vi prøve å gjøre noe med nå.
+
+I mange språk implementeres parallellitet ved å sikre tilgang til delte variabler. Dette er ofte komplekst og krever stor kunnskap for å få helt korrekt. Go har derimot en annen tilnærming til denne problemstillingen. Go har et konsept som kalles for go-rutiner (eng: go routines) og kanaler (eng: channels). En go-rutine kan sees på som en lettvektsprosess og disse prosessene kommuniserer ved å sende data til hverandre over en eller flere kanaler. Dette fører til at en delt variabel aldri vil blir forsøkt aksessert av to prosesser samtidig. Dette fører igjen til at det er mye mindre sannsynlighet for race conditions eller deadlock-situasjoner kan oppstå, sammenlignet med mer tradisjonelle språk. Go har utledet denne måten å tenke på til følgende slagord:
 
 > *Do not communicate by sharing memory; instead, share memory by communicating.*
+
+Så la oss se på noen konkrete eksempler på hvordan denne tankegangen er implementert i Go. Eksempelet nedenfor viser hvordan man oppretter kanalen *my_chan*, hvordan man sender en melding på denne kanalen og  til slutt hvordan man henter ut en verdi fra kanalen og lagrer denne i variabelen *a*. Det å opprette kanalen og sende en melding på denne er såkalte ikke-blokkerende operasjoner, det vil si at programmet vil utføre disse to operasjonene og så fortsette umiddelbart. Derimot så er det å vente på svar fra en kanal en blokkerende operasjon. Det vil si at programmet vil blokkere helt til det faktisk ligger data på kanalen *my_chan* og først da vil programmet hente ut denne verdien, lagre den i variabelen *a* før det fortsetter.
 
 
 ```go
 //Oppretter kanal
-channel := make(chan int)
+my_chan := make(chan int)
 
-// Sender melding på en kanal
-go channel <- 1
+// Sender en verdi på kanalen
+my_chan <- 1
 
-// Venter på svar og assigner til en variabel
-svar := <- channel
+// Venter på svar og lagrer verdien i en variabel
+a := <- my_chan
 ```
+
+Kunnskapen om at en go-rutine vil blokkere ved en slik operasjon kan vi bruke videre til å lage et større eksempel. Eksempel har som mål å vise en måte vi kan synkronisere to go-rutiner til å utføre en oppgave annenhver gang. 
 
 ```go
 package main
