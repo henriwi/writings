@@ -30,7 +30,7 @@ func main() {
 ```
 
 # Channels og go-routines
-En av de mest spennende tingene ved Go er hvordan språket har innebygd 
+En av de mest spennende tingene ved Go er hvordan parallellitet og synkronisering er bygd inn i språket. 
 
 > *Do not communicate by sharing memory; instead, share memory by communicating.*
 
