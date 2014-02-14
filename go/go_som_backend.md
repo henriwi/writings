@@ -75,8 +75,9 @@ import (
 	"time"
 )
 
-// STARTMAIN1 OMIT
-type Ball struct{ hits int }
+type Ball struct { 
+	hits int 
+}
 
 func main() {
 	table := make(chan *Ball)
@@ -98,10 +99,29 @@ func player(name string, table chan *Ball) {
 	}
 }
 ```
+Vi starter med å definere en struct Ball. Videre i main-funksjonen oppretter vi en kanal *table* ved hjelp av den innebygde funksjonen *make*. Kanaler er typet og vi kan sende objekter av typen *Ball* på denne kanalen. Så starter vi to go-rutiner ved å bruke nøkkelordet *go* etterfulgt av funksjonen vi ønsker skal eksekveres som en go-rutine. Det interessante er at hvis vi hadde fjernet *go* foran kallet til funksjonen *player* hadde vi utført et vanlig synkront funksjonskall.
+
+Funksjonen *player* tar i mot navnet på spilleren, samt kanalen vi opprettet tidligere for å sende meldinger. Funksjonen inneholder en evig løkke som vil utføres så lenge programmet kjører. Første linjen i løkka venter på at det kommer en melding på kanalen *table* og når det kommer en verdi her vil denne lagres i variabelen *ball*. Videre vil vi øke antall treff, skrive ut en melding og vente litt (kun for å få en bedre visuell effekt av programutskriften) før vi sender en melding tilbake på *table*.
+
+Tilbake i hovedprogrammet starter vi selve spillet med å sende en melding på *table*. Vi sover så i et par sekunder før vi venter til det kommer en ny melding på *table* og så fjerner vi denne. Dermed vil programmet avsluttes.
+
+Når programmet legger en ny ball på bordet, så vil *ping* stå å vente på at det kommer en melding på kanalen. Meldingen vil å bli plukket av, antall treff vil bli økt før den til slutt legger ballen tilbake på bordet. Deretter vil *pong* stå å vente på en melding fra *table* og vil så utføre det samme. Og *ping* og *pong* vil å se hente ut en melding fra kanalen annenhver gang.
+
+Resultatet av kjøringen av programmet vil være som følger
+
+```go
+ping 1
+pong 2
+ping 3
+pong 4
+ping 5
+pong 6
+ping 7
+pong 8
+```
+
 
 Som nevnt er en go-rutine en lettvekts prosess og et vanlig spørsmål er hvordan Go håndterer disse "prosessene". Målet med Go er å abstrahere bort alle kompliserte detaljer rundt synkronisering av samtidige prosesser slik at utviklerne ikke trenger å forholde seg til tråder og synkronisering av disse. F.eks. så kan to go-rutiner kjøre på samme OS-tråd, men hvis en av de to go-rutinene blokkerer, vil den ene go-rutinen automatisk (og transparent for utvikleren) bytte til en annen OS-tråd. Poenget er at utvikleren ikke skal trenger å forholde seg til disse detaljene, men opprette go-rutiner i programmet og la Go selv håndtere det på en best mulig måte.
-
-# Interface og structs
 
 # RSS-feeder
 Til slutt skal jeg gå gjennom et litt større eksempel skrevet i Go. Det vi skal lage er en veldig enkel RSS-leser, det vil si vi skal lage backenden til denne RSS-leseren i Go. Programmet skal tilby et REST-grensesnitt med følgende operasjoner:
@@ -110,7 +130,7 @@ Til slutt skal jeg gå gjennom et litt større eksempel skrevet i Go. Det vi ska
 - Opprette en ny feed
 - Markere et item som lest
 
-Jeg kommer ikke til å vise alle detlajer fra programmet, men for de som er interessert er all kildekoden tilgjengelig på https://github.com/henriwi/gorss
+Jeg kommer ikke til å vise alle detlajer fra programmet, men for de som er interessert er all kildekoden tilgjengelig på https://github.com/henriwi/gorss og applikasjonen kjører på http://simplyrss.herokuapp.com/
 
 Det første vi trenger er en webserver som kan route de ulike HTTP-kallene videre nedover i programmet. Go kommer med en innebygd http-pakke med god støtte for å sette opp en web-server. Men i dette eksempelet skal vi bruke en ekstern pakke *martini* som er en utvidelse av Go sin http-pakke. Nedenfor viser vi hvordan vi bruker Martini til å sette opp 4 endepunkter, et endepunkt for / hvor vi serverer statiske filer. Dette er javascript, html og css som vi sender til klienten. Videre definerer vi opp tre endepunkter i api-et vårt. To GET-metoder og én POST. FetchFeeds, FetchFeed og AddFeed er funksjoner som håndterer de ulike forespørslene som klienten gjør.
 
