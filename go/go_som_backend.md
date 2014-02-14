@@ -153,55 +153,69 @@ Tanken bak implementasjonen er å se gjennom alle url-ene vi skal hente feedsene
 
 Hver enkelt go-rutine vil legge resultatet av forespørselen på en kanal. Dermed kan vi lytte på denne kanalen og hente ut alle meldingene som ligger på denne. Når vi har fått like mange meldinger som antall go-rutiner vi startet vet vi at vi er ferdig og vi kan returnere hele resultatet (alle feedene) til klienten.
 
-Eksempelet nedenfor viser en hjelpefunksjon *asyncFetchFeeds* som gjør det vi nå har forklart. For hver url starter den en anonym funksjon som en go-rutine og legger resultatet av funksjonen på en kanal. Etter å ha startet alle go-rutinene går vi inn i en løkke hvor vi hjelp av *select case* sjekker om vi har fått noe på kanalen. Hvis vi har så henter vi meldingen ut fra kanalen og legger dette til i en array. Når vi har fått alle meldingene returnerer vi arrayet som inneholder selve feeden, samt en evt. feil.
+Eksempelet nedenfor viser en hjelpefunksjon *asyncFetchFeeds* som gjør det vi nå har forklart. For hver url starter den en anonym funksjon som en go-rutine og legger resultatet av funksjonen på en kanal. Etter å ha startet alle go-rutinene går vi inn i en løkke hvor vi hjelp av *select case* sjekker om vi har fått noe på kanalen. Hvis vi har så henter vi meldingen ut fra kanalen og legger dette til i en array. Når vi har fått alle meldingene returnerer vi arrayet som inneholder selve feeden, samt en evt. feil. I tillegg har vi en ekstra case som returnerer alle responsene etter 5 sekunder, hvis f.eks. en URL ikke svarer.
 
 
 ```go
-func asyncFetchFeeds() []*HttpResponse {
+func asyncFetchFeeds(feeds []*rss.Feed) []*HttpResponse {
 	ch := make(chan *HttpResponse)
 	responses := []*HttpResponse{}
 
-	for url, feed := range urls {
-			go func(url string) {
-				feed, err := rss.Fetch(url)
-				urls[url] = feed
-				ch <- &HttpResponse{url, feed, err}
-			}(url)
-		}
+	for _, feed := range feeds {
+		go func(f *rss.Feed) {
+			fmt.Printf("Fetching %s\n", f.UpdateURL)
+			feed, err := rss.Fetch(f.UpdateURL)
+
+			if err != nil {
+				fmt.Printf("Error in response %s. Using old feed.\n", err)
+				ch <- &HttpResponse{f, err}
+			} else {
+				ch <- &HttpResponse{feed, err}
+			}
+
+		}(feed)
 	}
 
 	for {
 		select {
 		case r := <-ch:
+			fmt.Printf("%s was fetched\n", r.feed.UpdateURL)
 			responses = append(responses, r)
-			if len(responses) == len(urls) {
+			if len(responses) == len(feeds) {
 				return responses
 			}
+		case <-time.After(5 * time.Second):
+			return responses
+		}
 	}
-	return responses
 }
 ```
 
-Selve FetchFeeds-funksjonen er vist nedenfor og her ser vi at vi starter med å kalle hjelpefunksjonen vår asyncFetchFeeds. Denne returnerer som vi så et array med alle responsene. Merk at kallet til asyncFetchFeeds er et vanlig synkront funksjonskall og vil ikke returnere før alle feedsene er blitt forsøkt hentet.
+Selve FetchFeeds-funksjonen er vist nedenfor og her ser vi at vi starter med å hente alle feeds fra databasen før vi kaller hjelpefunksjonen asyncFetchFeeds. Denne returnerer som vi så et array med alle responsene. Merk at kallet til asyncFetchFeeds er et vanlig synkront funksjonskall og vil ikke returnere før alle feedsene er blitt forsøkt hentet.
 
-Vi ser så gjennom alle responsene vi har fått og hvis feeden er blitt hentet korrekt, legger vi til denne i et nytt array som inneholder resultatet vi til slutt skal sende til klienten. 
-
-Til slutt bruker vi en JSON-parser til å serialisere typene våre til JSON før vi skriver dette til responsen.
+Vi ser så gjennom alle responsene vi har fått og legger vi til alle feeds i et nytt array som inneholder resultatet vi til slutt skal sende til klienten. Til slutt bruker vi en JSON-parser til å serialisere typene våre til JSON før vi skriver dette til responsen.
 
 ```go
 func FetchFeeds(writer http.ResponseWriter, request *http.Request) {
-	responses := asyncFetchFeeds()
+	rss.CacheParsedItemIDs(false)
+	feeds, err := db.GetAll()
 
-	feeds := []*rss.Feed{}
-	for _, r := range responses {
-		if r.err != nil {
-			fmt.Printf("Error in response %s\n", r.err)
-		} else {
-			feeds = append(feeds, r.feed)
-		}
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
 	}
 
-	jsonResult, _ := json.Marshal(feeds)
+	if len(feeds) == 0 {
+		return
+	}
+
+	responses := asyncFetchFeeds(feeds)
+
+	result := []*rss.Feed{}
+	for _, r := range responses {
+			result = append(result, r.feed)
+	}
+
+	jsonResult, _ := json.Marshal(result)
 	fmt.Fprintf(writer, string(jsonResult))
 }
 ```
