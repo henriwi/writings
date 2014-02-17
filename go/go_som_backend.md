@@ -44,6 +44,20 @@ func main() {
 }
 ```
 
+# Typer
+Go har ingen klasser som vi kjenner fra språk som Java og C#, men man bruker *structs* for å deklarere typer. Eksempelet nedenfor viser hvordan vi kan definere en type *Page* som har attributtene *Header* og *Body*
+
+```go
+type Page struct {
+	Header 	string
+	Body 		string
+}
+```
+
+For å opprette en instans av en *struct* bruker man den innebygde funksjonen *new* som allokerer minne til typen og returnerer en peker (addressen til hvor i minne objektet ligger) til objektet.
+
+
+
 # Channels og go-routines
 Foreløpig har vi kun sett på de mest grunnleggende tingene med Go, og som den observante leser du er, har du kanskje lurt på hva som gjør Go så annerledes og spennende som jeg snakket om i introduksjonen? Det skal vi prøve å gjøre noe med nå.
 
@@ -219,3 +233,14 @@ func FetchFeeds(writer http.ResponseWriter, request *http.Request) {
 	fmt.Fprintf(writer, string(jsonResult))
 }
 ```
+
+Det er selvfølgelig mange mulige implementasjoner av løsningen ovenfor, og jeg mener på ingen måte at den presenterte løsningen er den beste. Samtidig synes jeg løsningen presentert har en del interessante sider som kan være verdt å ta med seg.
+
+# Oppsummering
+Gjennom denne bloggposten har jeg vist hvordan man laster ned og installerer Go, kjører Go programmer og vise flere eksempler skrevet i Go. Jeg har også vist et bruksområde jeg mener Go egner seg godt til, nemlig som en HTTP-backend. I dag ser vi flere og flere eksempler på arkitekturer bestående av såkalte mikrotjenester, små tjenester/applikasjoner som gjør én ting. I motsetning til tidligere hvor det var vanligere med monolittiske applikasjoner som skulle utføre "alt". I tillegg ser vi en utvikling hvor det blir vanligere og separere frontend og backend til en applikasjon, gjerne skrevet som to selvstendige applikasjoner. Her mener jeg at Go passer godt som et alternativ til en slik backend-tjeneste. 
+
+Hvis du ønsker å lære mer om Go vil jeg anbefale følgende ressurser
+
+* http://golang.org – Go sin hjemmeside med god dokumentasjon av selve språket, samt mye linker til andre ressurser
+* http://www.youtube.com/watch?v=f6kdp27TYZs – Go Concurrency Patterns (Google IO 2012)
+* http://www.youtube.com/watch?v=QDDwwePbDtw - Advanced Go Concurrency Patterns (Google IO 2013)
