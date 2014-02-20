@@ -18,7 +18,7 @@ Noen av de viktigste egenskapene til Go kan oppsumeres som følgende punkter
 * God dokumentasjon
 
 # Installasjon
-Go har støtte for de fleste plattformer og lastes ned fra [Go](http://golang.com.) sine sider. Etter installasjonen har man tilgang til kommandoen *go*, og kan dermed utføre følgende kommandoer.
+Go har støtte for de fleste plattformer og lastes ned fra [Go](http://golang.com.) sine sider. Etter installasjonen har man tilgang til kommandoen ```go```, og kan dermed utføre følgende kommandoer.
 
 ```
 // Kompilerer og kjører programmet hello.go.
@@ -63,7 +63,7 @@ go add.go
 ```
 
 # Structs og interface
-Go har ingen klasser slik vi kjenner fra språk som Java og C#, men man bruker *structs* (kjent fra blant annet C) for å deklarere typer. Eksempelet nedenfor viser hvordan vi kan definere en type *Page* og en funksjon som kan kalles på denne typen *appendToBody*. Siden Go ikke har klasser har man heller ikke metoder, men man kan definere funksjoner som kan kalles av en struct. Til slutt ser vi hvordan vi kan opprette en instans av *Page* med den innebygde funksjonen *new*. Denne funksjonen vil allokere minne til typen og returnere en peker (addressen til hvor i minne objektet ligger) til objektet.
+Go har ingen klasser slik vi kjenner fra språk som Java og C#, men man bruker *structs* (kjent fra blant annet C) for å deklarere typer. Eksempelet nedenfor viser hvordan vi kan definere en type ```Page``` og en funksjon som kan kalles på denne typen ```appendToBody```. Siden Go ikke har klasser har man heller ikke metoder, men man kan definere funksjoner som kan kalles av en struct. Til slutt ser vi hvordan vi kan opprette en instans av ```Page`` med den innebygde funksjonen ```new```. Denne funksjonen vil allokere minne til typen og returnere en peker (addressen til hvor i minne objektet ligger) til objektet.
 
 ```go
 type Page struct {
@@ -79,7 +79,7 @@ page := new(Page)
 page.appendToBody("my new message")
 ```
 
-I tillegg til *structs* har Go *interface* hvor man definerer et sett med metoder som en type må ha for å implementere dette interface. I mange språk vil en klasse eller type eksplisitt implementere et eller flere interface (i Java gjennom nøkkelordet *implements*). I Go sier man derimot at så lenge en type B har de samme funksjonene (med samme signatur) som interface A har deklarert, implementerer B interface A uten at dette trenger å deklareres eksplisitt. Eksempelet nedenfor viser hvordan vi definerer et interface *Shaper*, samt to typer *Square* og *Rectangle*, i tillegg til to funksjoner som kan kalles på de to typene slik at vi oppfyller kontrakten til interfacet. I main-funksjonen viser vi hvordan vi kan bruke dette til å beregne arealet til alle typene.
+I tillegg til *structs* har Go *interface* hvor man definerer et sett med metoder som en type må ha for å implementere dette interface. I mange språk vil en klasse eller type eksplisitt implementere et eller flere interface (i Java gjennom nøkkelordet *implements*). I Go sier man derimot at så lenge en type B har de samme funksjonene (med samme signatur) som interface A har deklarert, implementerer B interface A uten at dette trenger å deklareres eksplisitt. Eksempelet nedenfor viser hvordan vi definerer et interface ```Shaper```, samt to typer ```Square``` og ```Rectangle```, i tillegg til to funksjoner som kan kalles på de to typene slik at vi oppfyller kontrakten til interfacet. I main-funksjonen viser vi hvordan vi kan bruke dette til å beregne arealet til alle typene.
 
 ```go
 // Deklarerer et interface Shaper
@@ -144,7 +144,7 @@ a := <- my_chan
 go my_function()
 ```
 
-Det å opprette en kanal og sende en melding på denne, er såkalte ikke-blokkerende operasjoner, det vil si at programmet vil utføre disse to operasjonene og så fortsette umiddelbart. Derimot så er det å vente på svar fra en kanal en blokkerende operasjon. Det vil si at programmet ovenfor vil blokkere helt til det faktisk ligger data på kanalen *my_chan* og først da vil programmet hente ut denne verdien og lagre den i variabelen *a*. Det er også vært å legge merke til at *my_function* er en helt vanlig funksjon uten noen spesielle egenskaper, og hvis vi hadde fjernet *go* foran kallet til funksjonen hadde vi utført et vanlig synkront funksjonskall.
+Det å opprette en kanal og sende en melding på denne, er såkalte ikke-blokkerende operasjoner, det vil si at programmet vil utføre disse to operasjonene og så fortsette umiddelbart. Derimot så er det å vente på svar fra en kanal en blokkerende operasjon. Det vil si at programmet ovenfor vil blokkere helt til det faktisk ligger data på kanalen ```my_chan``` og først da vil programmet hente ut denne verdien og lagre den i variabelen ```a```. Det er også vært å legge merke til at ```my_function``` er en helt vanlig funksjon uten noen spesielle egenskaper, og hvis vi hadde fjernet ```go``` foran kallet til funksjonen hadde vi utført et vanlig synkront funksjonskall.
 
 Kunnskapen om at en go-rutine vil blokkere når den venter på data fra en kanal, brukes ofte til å synkronisere en eller flere go-rutiner slik at de utfører en oppgave annenhver gang. Eksempelet nedenfor viser nettopp dette. 
 
@@ -181,13 +181,13 @@ func player(name string, table chan *Ball) {
 }
 ```
 
-Etter pakkedeklarasjonen og importering av noen pakker, starter vi med å definere en struct *Ball*. I main-funksjonen oppretter vi en kanal *table* ved hjelp av den innebygde funksjonen *make*. Kanaler i Go er typet og vi kan dermed sende objekter av typen *Ball* på denne kanalen. Så starter vi to go-rutiner ved å kalle ```go player("ping", table)```og ```go player("pong", table)```.
+Etter pakkedeklarasjonen og importering av noen pakker, starter vi med å definere en struct ```Ball```. I main-funksjonen oppretter vi en kanal ```table``` ved hjelp av den innebygde funksjonen ```make```. Kanaler i Go er typet og vi kan dermed sende objekter av typen ```Ball``` på denne kanalen. Så starter vi to go-rutiner ved å kalle ```go player("ping", table)```og ```go player("pong", table)```.
 
-Funksjonen *player* tar i mot navnet på spilleren, samt kanalen *table*. Funksjonen inneholder en evig løkke som vil utføres så lenge programmet kjører. Første linjen i løkka venter på at det kommer en melding på kanalen *table* og lagrer så denne verdien i variabelen *ball*. Videre øker vi antall treff, og skriver ut status før vi sender en melding tilbake på *table* (programmet sover i 300 millisekunder kun for å få en bedre visuell effekt av programutskriften).
+Funksjonen ```player``` tar i mot navnet på spilleren, samt kanalen ```table```. Funksjonen inneholder en evig løkke som vil utføres så lenge programmet kjører. Første linjen i løkka venter på at det kommer en melding på kanalen ```table``` og lagrer så denne verdien i variabelen ```ball```. Videre øker vi antall treff, og skriver ut status før vi sender en melding tilbake på ```table``` (programmet sover i 300 millisekunder kun for å få en bedre visuell effekt av programutskriften).
 
-Begge go-rutinene vil først stå å vente på at det skal komme en melding på kanalen *table*. I main-funksjonen starter vi selve spillet med å sende en melding på *table*. Spilleren *ping* vil først hente ut denne meldingen, øke antall treff, før den til slutt legger ballen tilbake på bordet. Deretter vil *pong* stå å vente på en melding fra *table* og vil utføre samme operasjoner. *ping* og *pong* vil så kjøre annenhver gang.
+Begge go-rutinene vil først stå å vente på at det skal komme en melding på kanalen ```table```. I main-funksjonen starter vi selve spillet med å sende en melding på ```table```. Spilleren ```ping``` vil først hente ut denne meldingen, øke antall treff, før den til slutt legger ballen tilbake på bordet. Deretter vil ```pong``` stå å vente på en melding fra ```table``` og vil utføre samme operasjoner. ```ping``` og ```pong``` vil så kjøre annenhver gang.
 
-I main-funksjonen sover vi så i et par sekunder (mens *ping* og *pong* spiller) før vi fjerner meldingen fra *table* og forkaster denne. Dermed vil programmet avsluttes. Utskriften fra programmet vil være som følger
+I main-funksjonen sover vi så i et par sekunder (mens ```ping``` og ```pong``` spiller) før vi fjerner meldingen fra ```table``` og forkaster denne. Dermed vil programmet avsluttes. Utskriften fra programmet vil være som følger
 
 ```go
 ping 1
@@ -205,7 +205,7 @@ Målet med Go er å abstrahere bort alle kompliserte detaljer rundt parallelle p
 # HTTP-backend
 I introen til bloggposten nevnte jeg at jeg skulle vise hvordan man kan skrive en HTTP-backend i Go og deploye denne til Heroku. Som eksempel skal jeg ta utgangspunkt i en veldig enkel RSS-leser, det vil si vi skal lage backenden til denne RSS-leseren i Go. Jeg kommer ikke til å vise alle detaljer fra programmet, men for de som er interessert er kildekoden tilgjengelig på https://github.com/henriwi/gorss.
 
-Det første vi trenger er en mekanisme for å ta i mot HTTP-kall og route disse videre nedover i programmet. Go kommer med en innebygd http-pakke med god støtte for å sette opp en web-server. Men i dette eksempelet skal vi bruke en ekstern pakke [Martini](https://github.com/codegangsta/martini) som er en utvidelse av Go sin http-pakke, med blant annet bedre støtte for REST. Nedenfor viser vi hvordan Martini kan brukes til å lage et endepunkt for å hente alle feedsene til brukeren på URL-en /api/feed før vi starter en webserver som lytter på port 8080. *FetchFeeds* er en funksjon som håndterer de ulike forespørslene som klienten gjør. Som vi ser støtter også Go å sende inn funksjoner som argument til andre funksjoner, såkalt [First class function](http://en.wikipedia.org/wiki/First-class_function).
+Det første vi trenger er en mekanisme for å ta i mot HTTP-kall og route disse videre nedover i programmet. Go kommer med en innebygd http-pakke med god støtte for å sette opp en web-server. Men i dette eksempelet skal vi bruke en ekstern pakke [Martini](https://github.com/codegangsta/martini) som er en utvidelse av Go sin http-pakke, med blant annet bedre støtte for REST. Nedenfor viser vi hvordan Martini kan brukes til å lage et endepunkt for å hente alle feedsene til brukeren på URL-en /api/feed før vi starter en webserver som lytter på port 8080. ```FetchFeeds``` er en funksjon som håndterer de ulike forespørslene som klienten gjør. Som vi ser støtter også Go å sende inn funksjoner som argument til andre funksjoner, såkalt [First class function](http://en.wikipedia.org/wiki/First-class_function).
 
 ```go
 m.Get("/api/feed", FetchFeeds)
@@ -213,9 +213,9 @@ m.Get("/api/feed", FetchFeeds)
 http.ListenAndServe(":8080", m)
 ```
 
-Vi skal gå litt mer i detalj på funksjonen *FetchFeeds*. Denne er ansvarlig for å hente alle feedsene som brukeren har lagret, oppdatere disse og sende resultatet tilbake til klienten. Tanken bak implementasjonen er å se gjennom alle feeds vi skal oppdatere. For hver feed setter vi i gang en go-rutine som oppdaterer feeden og returnerer den oppdaterte feeden, eller en feil hvis noe har gått galt under hentingen. Hvis brukeren for eksempel har lagret 100 feeds vil programmet starte opp 100 go-rutiner som vil jobbe i parallell for å hente innholdet. Men hvordan kan vi synkronisere disse rutinene, og returnere resultatet til klienten når alle er ferdig? Til dette kan vi bruke en kanal.
+Vi skal gå litt mer i detalj på funksjonen ```FetchFeeds```. Denne er ansvarlig for å hente alle feedsene som brukeren har lagret, oppdatere disse og sende resultatet tilbake til klienten. Tanken bak implementasjonen er å se gjennom alle feeds vi skal oppdatere. For hver feed setter vi i gang en go-rutine som oppdaterer feeden og returnerer den oppdaterte feeden, eller en feil hvis noe har gått galt under hentingen. Hvis brukeren for eksempel har lagret 100 feeds vil programmet starte opp 100 go-rutiner som vil jobbe i parallell for å hente innholdet. Men hvordan kan vi synkronisere disse rutinene, og returnere resultatet til klienten når alle er ferdig? Til dette kan vi bruke en kanal.
 
-Hver enkelt go-rutine vil legge resultatet av forespørselen på én kanal. Dermed kan vi lytte på denne kanalen og hente ut meldingene etterhvert som de ulike go-rutinene legger meldinger på denne kanalen. Når vi har fått like mange meldinger tilbake som antall go-rutiner vi startet, vet vi at vi er ferdig og vi kan returnere hele resultatet (alle feedene) til klienten. Nedenfor vises den aktuelle delen av koden som utfører dette. En *select case* fungerer på samme måte som en *switch case*, hvor vi velger det caset der det ligger en melding på kanalen.
+Hver enkelt go-rutine vil legge resultatet av forespørselen på én kanal. Dermed kan vi lytte på denne kanalen og hente ut meldingene etterhvert som de ulike go-rutinene legger meldinger på denne kanalen. Når vi har fått like mange meldinger tilbake som antall go-rutiner vi startet, vet vi at vi er ferdig og vi kan returnere hele resultatet (alle feedene) til klienten. Nedenfor vises den aktuelle delen av koden som utfører dette. En ```select case``` fungerer på samme måte som en ```switch case```, hvor vi velger det caset der det ligger en melding på kanalen.
 
 ```go
 ch := make(chan *HttpResponse)
