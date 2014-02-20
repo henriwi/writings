@@ -63,7 +63,7 @@ go add.go
 ```
 
 # Structs og interface
-Go har ingen klasser slik vi kjenner fra språk som Java og C#, men man bruker *structs* (kjent fra blant annet C) for å deklarere typer. Eksempelet nedenfor viser hvordan vi kan definere en type ```Page``` og en funksjon som kan kalles på denne typen ```appendToBody```. Siden Go ikke har klasser har man heller ikke metoder, men man kan definere funksjoner som kan kalles av en struct. Til slutt ser vi hvordan vi kan opprette en instans av ```Page`` med den innebygde funksjonen ```new```. Denne funksjonen vil allokere minne til typen og returnere en peker (addressen til hvor i minne objektet ligger) til objektet.
+Go har ingen klasser slik vi kjenner fra språk som Java og C#, men man bruker *structs* (kjent fra blant annet C) for å deklarere typer. Eksempelet nedenfor viser hvordan vi kan definere en type ```Page``` og en funksjon som kan kalles på denne typen ```appendToBody```. Siden Go ikke har klasser har man heller ikke metoder, men man kan definere funksjoner som kan kalles av en struct. Til slutt ser vi hvordan vi kan opprette en instans av ```Page``` med den innebygde funksjonen ```new```. Denne funksjonen vil allokere minne til typen og returnere en peker (addressen til hvor i minne objektet ligger) til objektet.
 
 ```go
 type Page struct {
