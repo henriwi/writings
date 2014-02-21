@@ -37,7 +37,7 @@ go get github.com/codegangsta/martini
 godoc -http=6060
 ```
 
-# Litt kode
+# Syntaks
 Så hvordan ser egentlig Go-kode ut? Syntaksen til Go er sterkt inspirert av C, og hvis du har jobbet litt med det språket vil du nok kjenne igjen en del ting. Eksempelet nedenfor viser et lite program som legger sammen to tall og skriver dette til konsollet.
 
 ```go
@@ -67,8 +67,8 @@ Go har ingen klasser slik vi kjenner fra språk som Java og C#, men man bruker *
 
 ```go
 type Page struct {
-	Header 	string
-	Body 		string
+	Header  string
+	Body    string
 }
 
 func (page *Page) appendToBody(message string) {
@@ -79,47 +79,30 @@ page := new(Page)
 page.appendToBody("my new message")
 ```
 
-I tillegg til *structs* har Go *interface* hvor man definerer et sett med metoder som en type må ha for å implementere dette interface. I mange språk vil en klasse eller type eksplisitt implementere et eller flere interface (i Java gjennom nøkkelordet *implements*). I Go sier man derimot at så lenge en type B har de samme funksjonene (med samme signatur) som interface A har deklarert, implementerer B interface A uten at dette trenger å deklareres eksplisitt. Eksempelet nedenfor viser hvordan vi definerer et interface ```Shaper```, samt to typer ```Square``` og ```Rectangle```, i tillegg til to funksjoner som kan kalles på de to typene slik at vi oppfyller kontrakten til interfacet. I main-funksjonen viser vi hvordan vi kan bruke dette til å beregne arealet til alle typene.
+I tillegg til *structs* har Go *interface* hvor man definerer et sett med metoder som en type må ha for å implementere dette interfacet. I mange språk vil en klasse eller type eksplisitt implementere et eller flere interface (i Java gjennom nøkkelordet *implements*). I Go sier man derimot at så lenge en type B har de samme funksjonene (med samme signatur) som interface A har deklarert, implementerer B interface A uten at dette trenger å deklareres eksplisitt. Eksempelet nedenfor viser hvordan vi kan lage vår egen ```ConsoleWriter```som implementerer Go sitt innerbygde interface ```Writer```.
 
 ```go
-// Deklarerer et interface Shaper
-type Shaper interface {
-   Area() int
+// Go sitt interface Writer
+type Writer interface {
+  Write(p []byte) (n int, err error)
 }
 
-// Deklarerer typen Rectangle med én funksjon Area()
-// Legg merke til at det ikke er noen eksplisitt kobling mellom Rectangle og Shaper
-type Rectangle struct {
-   length, width int
+// Deklarerer typen ConsoleWriter med én funksjon Write() med samme signatur som interface Writer
+// Go ser ved kompileringstid at ConsoleWriter implementerer Writer
+// Legg merke til at det ikke er noen eksplisitt kobling mellom ConsoleWriter og Writer
+type ConsoleWriter struct{}
+
+func (cw *ConsoleWriter) Write(p []byte) (n int, err error) {
+   fmt.Printf("%s", p)
+   return
 }
 
-func (r Rectangle) Area() int {
-   return r.length * r.width
-}
-
-
-// Typen Square som også implementerer én funksjon Area()
-type Square struct {
-   side int
-}
-
-func (sq Square) Area() int {
-   return sq.side * sq.side
-}
-
+// Oppretter en ConsoleWriter
+// Sender så referansen til metoden Fprintf som tar i mot alle Writer-objekter
+// Fprintf vil igjen kalle Write på ConsoleWriter-objektet
 func main() {
-	rec := Rectangle{length:5, width:3}
-  sq := Square{side:5}
-  
-  shapes := []Shaper{rec, sq}
-	
-	var area float64
-	
-	for _, s := range shapes {
-		area += s.area()
-	}
-
-	fmt.Printf("Total area %s", area)
+	cw := new(ConsoleWriter)
+	fmt.Fprintf(cw, "Tester min egen ConsoleWriter")
 }
 ```
 
@@ -205,7 +188,7 @@ Målet med Go er å abstrahere bort alle kompliserte detaljer rundt parallelle p
 # HTTP-backend
 I introen til bloggposten nevnte jeg at jeg skulle vise hvordan man kan skrive en HTTP-backend i Go og deploye denne til Heroku. Som eksempel skal jeg ta utgangspunkt i en veldig enkel RSS-leser, det vil si vi skal lage backenden til denne RSS-leseren i Go. Jeg kommer ikke til å vise alle detaljer fra programmet, men for de som er interessert er kildekoden tilgjengelig på https://github.com/henriwi/gorss.
 
-Det første vi trenger er en mekanisme for å ta i mot HTTP-kall og route disse videre nedover i programmet. Go kommer med en innebygd http-pakke med god støtte for å sette opp en web-server. Men i dette eksempelet skal vi bruke en ekstern pakke [Martini](https://github.com/codegangsta/martini) som er en utvidelse av Go sin http-pakke, med blant annet bedre støtte for REST. Nedenfor viser vi hvordan Martini kan brukes til å lage et endepunkt for å hente alle feedsene til brukeren på URL-en /api/feed før vi starter en webserver som lytter på port 8080. ```FetchFeeds``` er en funksjon som håndterer de ulike forespørslene som klienten gjør. Som vi ser støtter også Go å sende inn funksjoner som argument til andre funksjoner, såkalt [First class function](http://en.wikipedia.org/wiki/First-class_function).
+Det første vi trenger er en mekanisme for å ta i mot HTTP-kall og route disse videre nedover i programmet. Go kommer med en innebygd http-pakke med god støtte for å sette opp en web-server. Men i dette eksempelet skal vi bruke en ekstern pakke [Martini](https://github.com/codegangsta/martini) som er en utvidelse av Go sin http-pakke, med blant annet bedre støtte for REST. Nedenfor viser vi hvordan Martini kan brukes til å lage et endepunkt for å hente alle feedsene til brukeren på URL-en ```/api/feed``` før vi starter en webserver som lytter på port 8080.
 
 ```go
 m.Get("/api/feed", FetchFeeds)
@@ -213,7 +196,20 @@ m.Get("/api/feed", FetchFeeds)
 http.ListenAndServe(":8080", m)
 ```
 
-Vi skal gå litt mer i detalj på funksjonen ```FetchFeeds```. Denne er ansvarlig for å hente alle feedsene som brukeren har lagret, oppdatere disse og sende resultatet tilbake til klienten. Tanken bak implementasjonen er å se gjennom alle feeds vi skal oppdatere. For hver feed setter vi i gang en go-rutine som oppdaterer feeden og returnerer den oppdaterte feeden, eller en feil hvis noe har gått galt under hentingen. Hvis brukeren for eksempel har lagret 100 feeds vil programmet starte opp 100 go-rutiner som vil jobbe i parallell for å hente innholdet. Men hvordan kan vi synkronisere disse rutinene, og returnere resultatet til klienten når alle er ferdig? Til dette kan vi bruke en kanal.
+```FetchFeeds``` er en funksjon med en signatur som gjør at den kan bli sendt inn som argument til ```Get```. Som vi ser støtter Go å sende inn funksjoner som argument til andre funksjoner, såkalt [First class function](http://en.wikipedia.org/wiki/First-class_function). *FetchFeeds* ser slik ut (med litt pseduokode). Dette er egentlig alt
+
+```go
+func FetchFeeds(writer http.ResponseWriter, request *http.Request) {
+	// Hent alle feeds
+	results := <hent og oppdater alle feeds>
+
+	// Serialiserer resultatet til json og skriv resultatet til responsen
+	jsonResult, _ := json.Marshal(result)
+	fmt.Fprintf(writer, string(jsonResult))
+}
+```
+
+Vi skal gå litt mer i detalj på funksjonen ```FetchFeeds``` og delen ```hent og oppdater alle feeds```. Denne er ansvarlig for å hente alle feedsene som brukeren har lagret, oppdatere disse og sende resultatet tilbake til klienten. Tanken bak implementasjonen er å se gjennom alle feeds vi skal oppdatere. For hver feed setter vi i gang en go-rutine som oppdaterer feeden og returnerer den oppdaterte feeden, eller en feil hvis noe har gått galt under hentingen. Hvis brukeren for eksempel har lagret 100 feeds vil programmet starte opp 100 go-rutiner som vil jobbe i parallell for å hente innholdet. Men hvordan kan vi synkronisere disse rutinene, og returnere resultatet til klienten når alle er ferdig? Til dette kan vi bruke en kanal.
 
 Hver enkelt go-rutine vil legge resultatet av forespørselen på én kanal. Dermed kan vi lytte på denne kanalen og hente ut meldingene etterhvert som de ulike go-rutinene legger meldinger på denne kanalen. Når vi har fått like mange meldinger tilbake som antall go-rutiner vi startet, vet vi at vi er ferdig og vi kan returnere hele resultatet (alle feedene) til klienten. Nedenfor vises den aktuelle delen av koden som utfører dette. En ```select case``` fungerer på samme måte som en ```switch case```, hvor vi velger det caset der det ligger en melding på kanalen.
 
@@ -244,9 +240,9 @@ for {
 }
 ```
 
-Det er selvfølgelig mange mulige implementasjoner av løsningen ovenfor, og jeg mener på ingen måte at den presenterte løsningen er den beste. I tillegg har jeg utelatt litt feilhåndtering for å gjøre koden enklere. Samtidig synes jeg løsningen presentert har en del interessante sider som kan være verdt å ta med seg videre. Spesielt hvordan vi etter å ha satt i gang oppdateringen av alle feedene brukeren en kanal til å hente ut en og en feed.
+Det er selvfølgelig mange mulige implementasjoner av løsningen ovenfor, og jeg har jeg utelatt litt feilhåndtering for å gjøre koden enklere. Samtidig synes jeg løsningen presentert har en del interessante sider som kan være verdt å ta med seg videre. Spesielt hvordan vi etter å ha satt i gang oppdateringen av alle feedene brukeren en kanal til å hente ut en og en feed.
 
-# Deploye Go til Heroku eller Google App Engine
+# Deploy til Heroku eller Google App Engine
 Nå som du har sett hvordan vi kan lage en HTTP-backend i Go, er du forhåpentligvis interessert i å deploye dette slik at man kan ta det i bruk. Både Heroku og Google App Engine har støtte for å deploy Go-applikasjoner (Heroku gjennom en ekstern [buildpack](https://github.com/kr/heroku-buildpack-go)). Selv om det er mulig å deploye til begge plattformer, er det en del [forskjeller](http://james-eady.com/blog/2013/08/06/hosted-golang-heroku-vs-google-app-engine) hvor den viktigste er at Google App Engine krever at du må bruke flere egne biblioteker tilpasset App Engine for å deploye applikasjonen din, mens man på Heroku kan bruke Go sine standard bibliotek. 
 
 Personlig vil jeg anbefale å følge denne [guiden](http://mmcgrana.github.io/2012/09/getting-started-with-go-on-heroku.html) for en stegvis guide for å deploye til Heroku. Hvis du er interessert i å se på deploy til Google App Engine anbefaler jeg Google sin egen [dokumentasjon](https://developers.google.com/appengine/docs/go/).
