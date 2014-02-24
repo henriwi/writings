@@ -63,7 +63,7 @@ go add.go
 ```
 
 # Structs og interface
-Go har ingen klasser slik vi kjenner fra språk som Java og C#, men man bruker *structs* (kjent fra blant annet C) for å deklarere typer. Eksempelet nedenfor viser hvordan vi kan definere en type ```Page``` og en funksjon som kan kalles på denne typen ```appendToBody```. Siden Go ikke har klasser har man heller ikke metoder, men man kan definere funksjoner som kan kalles av en struct. Til slutt ser vi hvordan vi kan opprette en instans av ```Page``` med den innebygde funksjonen ```new```. Denne funksjonen vil allokere minne til typen og returnere en peker (addressen til hvor i minne objektet ligger) til objektet.
+Go har ingen klasser slik vi kjenner fra språk som Java og C#, men man bruker *structs* (kjent fra blant annet C) for å deklarere typer. Eksempelet nedenfor viser hvordan vi kan definere en type ```Page``` og en funksjon som kan kalles på denne typen ```SetBody```. Siden Go ikke har klasser har man heller ikke metoder, men man kan definere funksjoner som kan kalles av en struct. Til slutt ser vi hvordan vi kan opprette en instans av ```Page``` med den innebygde funksjonen ```new```. Denne funksjonen vil allokere minne til typen og returnere en peker (addressen til hvor i minne objektet ligger) til objektet.
 
 ```go
 type Page struct {
@@ -103,6 +103,7 @@ func (cw *ConsoleWriter) Write(p []byte) (n int, err error) {
 // Oppretter en ConsoleWriter
 // Sender så referansen til metoden Fprintf som tar i mot alle Writer-objekter
 // Fprintf vil igjen kalle Write på ConsoleWriter-objektet
+// Resultatet blir at meldingen blir skrevet til konsollet.
 func main() {
 	cw := new(ConsoleWriter)
 	fmt.Fprintf(cw, "Tester min egen ConsoleWriter")
@@ -212,9 +213,9 @@ func FetchFeeds(writer http.ResponseWriter, request *http.Request) {
 }
 ```
 
-Vi skal gå litt mer i detalj på funksjonen ```FetchFeeds``` og delen ```hent og oppdater alle feeds```. Denne delen er ansvarlig for å hente alle feedsene som brukeren har lagret, oppdatere disse og sende resultatet tilbake til. Tanken bak implementasjonen er å se gjennom alle feeds vi skal oppdatere. For hver feed setter vi i gang en go-rutine som oppdaterer feeden og returnerer den oppdaterte feeden, eller den gamle feeden og en feil hvis noe har gått galt under hentingen. Hvis brukeren for eksempel har lagret 100 feeds vil programmet starte opp 100 go-rutiner som vil jobbe i parallell for å hente innholdet. Men hvordan kan vi synkronisere disse rutinene, og returnere resultatet til klienten når alle er ferdig? Til dette kan vi bruke en kanal.
+Vi skal gå litt mer i detalj på funksjonen ```FetchFeeds``` og delen ```hent og oppdater alle feeds```. Denne delen er ansvarlig for å hente alle feedsene som brukeren har lagret, oppdatere disse og sende resultatet tilbake. Tanken bak implementasjonen er å se gjennom alle feeds vi skal oppdatere. For hver feed setter vi i gang en go-rutine som oppdaterer feeden og returnerer den oppdaterte feeden, eller den gamle feeden og en feil hvis noe har gått galt under hentingen. Hvis brukeren for eksempel har lagret 100 feeds vil programmet starte opp 100 go-rutiner som vil jobbe i parallell for å hente innholdet. Men hvordan kan vi synkronisere disse rutinene, og returnere resultatet til klienten når alle er ferdig? Til dette kan vi bruke en kanal.
 
-Hver enkelt go-rutine vil legge resultatet av forespørselen på én kanal. Dermed kan vi lytte på denne kanalen og hente ut meldingene etterhvert som de ulike go-rutinene legger meldinger på denne kanalen. Når vi har fått like mange meldinger tilbake som antall go-rutiner vi startet, vet vi at vi er ferdig og vi kan returnere hele resultatet (alle feedene) til klienten. Nedenfor vises den aktuelle delen av koden som utfører dette. En ```select case``` fungerer på samme måte som en ```switch case```, hvor vi velger det caset der det ligger en melding på kanalen.
+Hver enkelt go-rutine vil legge resultatet av forespørselen på en kanal. Dermed kan vi lytte på denne kanalen og hente ut meldingene etterhvert som de ulike go-rutinene legger meldinger på denne kanalen. Når vi har fått like mange meldinger tilbake som antall go-rutiner vi startet, vet vi at vi er ferdig og vi kan returnere hele resultatet (alle feedene) til klienten. Nedenfor vises den aktuelle delen av koden som utfører dette. En ```select case``` fungerer på samme måte som en ```switch case```, hvor vi utfører det aktuellet caset når ligger en melding på kanalen.
 
 ```go
 ch := make(chan *HttpResponse)
@@ -251,9 +252,9 @@ Nå som du har sett hvordan vi kan lage en HTTP-backend i Go, er du forhåpentli
 Personlig vil jeg anbefale å følge denne [guiden](http://mmcgrana.github.io/2012/09/getting-started-with-go-on-heroku.html) for en stegvis guide for å deploye til Heroku. Hvis du er interessert i å se på deploy til Google App Engine anbefaler jeg Google sin egen [dokumentasjon](https://developers.google.com/appengine/docs/go/).
 
 # Oppsummering
-Gjennom denne bloggposten har jeg vist hvordan man laster ned og installerer Go, kjører Go programmer og vist flere eksempler skrevet i Go. Jeg har også vist et bruksområde jeg mener Go egner seg godt til, nemlig som en HTTP-backend. I dag ser vi flere og flere eksempler på arkitekturer bestående av såkalte mikrotjenester, små tjenester/applikasjoner som gjør én ting. I motsetning til tidligere hvor det var vanligere med monolittiske applikasjoner som skulle utføre "alt". I denne konteksten mener jeg at Go er et interessant språk som det er vært å følge med på utviklingen til. Samtidig skiller Go seg en del ut fra mer tradisjonelle språk, og det kan være vært å lære seg Go av den enkle grunn at man vil lære seg litt nye måter og tenke på, som man kanskje til og med kan ta med seg inn i sitt "eget" språk i hverdagen.
+Gjennom denne bloggposten har jeg vist hvordan man laster ned og installerer Go, kjører Go programmer og vist flere eksempler skrevet i Go. Jeg har også vist et bruksområde jeg mener Go egner seg godt til, nemlig som en HTTP-backend. I dag ser vi flere og flere eksempler på arkitekturer bestående av såkalte mikrotjenester, små tjenester/applikasjoner som gjør én ting. I motsetning til tidligere hvor det var vanligere med monolittiske applikasjoner som skulle utføre "alt". I denne konteksten mener jeg at Go er et interessant språk som det er vært å følge med på den videre utviklingen til. I tillegg skiller Go seg en del ut fra mer tradisjonelle språk, og det kan være vært å lære seg Go av den enkle grunn at man vil lære seg litt nye måter og tenke på, som man kanskje til og med kan ta med seg inn i sitt "eget" språk i hverdagen.
 
-Hvis du har lyst til å lære mer om Go, og kanskje prøve Go selv så anbefaler jeg følgende ressurser:
+Hvis du har lyst til å lære mer om Go, og prøve Go selv så anbefaler jeg følgende ressurser:
 
 * Golang tour (test Go rett i nettleseren): http://tour.golang.org
 * Go sin hjemmeside med god dokumentasjon av selve språket, samt mye linker til andre ressurser: http://golang.org
