@@ -11,7 +11,7 @@ Noen av de viktigste egenskapene til Go kan oppsumeres som følgende punkter
 
 * Concurrency er bakt inn i kjernen av språket, og ikke som et bibliotek.
 * Go er statisk typet, men ved å støtte [Duck-typing](http://en.wikipedia.org/wiki/Duck_typing) og [automatisk typeinferens](http://en.wikipedia.org/wiki/Type_inference), føles språket nesten som et dynamisk språk.
-* Rask kompileringstid selv på store prosjekter med mange filer. Det har vært et mål hele veien å holde kompileringstiden så kort som mulig.
+* Rask kompileringstid selv på store prosjekter med mange filer.
 * Garbage collection
 * Ingen dynamiske avhengigheter som kreves på serveren programmet skal kjøre
 * Rikt standardbibliotek og flere og flere eksterne pakker
@@ -56,7 +56,7 @@ func main() {
 
 Noen umiddelbare forskjeller mellom Go og mer tradisjonelle språk er at typen til en variabel kommer *etter* navnet til variabelen. Det samme gjelder for parametre til funksjoner. En annen ting som gjør Go annerledes er måten det skilles mellom variabler som er tilgjengelig innenfor samme pakke, og variabler som er tilgjengelig utenfor pakken. Man bruker ikke nøkkelord (som *private* og *public* i Java), men variabler og funksjoner som starter med stor forbokstav er tilgjengelig utenfor pakken, mens variabler og funksjoner med liten forbokstav kun er tilgjengelig innenfor den pakken de er deklarert i.
 
-I eksempelet over er dermed funksjonen *add* kun tilgjenlig innenfor pakken *main*. Vi legger også merke til at programmet importerer pakkeen *fmt*. *fmt* er en pakke som følger med i distribusjonen av Go og brukes her til å skrive til konsollet. Hvis vi lagrer programmet i filen *add.go* kan vi kjøre programmet med følgende kommando.
+I eksempelet over er dermed funksjonen ```add``` kun tilgjenlig innenfor pakken ```main```. Vi legger også merke til at programmet importerer pakken ```fmt```. ```fmt``` er en pakke som følger med i distribusjonen av Go og brukes her til å skrive til konsollet. Hvis vi lagrer programmet i filen ```add.go``` kan vi kjøre programmet med følgende kommando.
 
 ```
 go add.go
@@ -71,18 +71,21 @@ type Page struct {
 	Body    string
 }
 
-func (page *Page) appendToBody(message string) {
-	page.Body.append(message)
+func (page *Page) SetBody(message string) {
+	page.Body = message
 }
 
+// Hvordan vi kan bruke Page et annet sted i programmet
 page := new(Page)
-page.appendToBody("my new message")
+page.SetBody("my new message")
 ```
 
-I tillegg til *structs* har Go *interface* hvor man definerer et sett med metoder som en type må ha for å implementere dette interfacet. I mange språk vil en klasse eller type eksplisitt implementere et eller flere interface (i Java gjennom nøkkelordet *implements*). I Go sier man derimot at så lenge en type B har de samme funksjonene (med samme signatur) som interface A har deklarert, implementerer B interface A uten at dette trenger å deklareres eksplisitt. Eksempelet nedenfor viser hvordan vi kan lage vår egen ```ConsoleWriter```som implementerer Go sitt innerbygde interface ```Writer```.
+I tillegg til *structs* har Go *interface* hvor man definerer et sett med metoder som en type må ha for å implementere dette interfacet. I mange språk vil en klasse eller type eksplisitt implementere et eller flere interface (i Java gjennom nøkkelordet *implements*). I Go sier man derimot at så lenge en type *T* har de samme funksjonene (med samme signatur) som interface *I* har deklarert, implementerer *T* interface *I* uten at dette trenger å deklareres eksplisitt. Eksempelet nedenfor viser hvordan vi kan lage vår egen ```ConsoleWriter```som implementerer Go sitt innerbygde interface ```Writer```.
 
 ```go
 // Go sitt interface Writer
+// Legg merke til at Go støtter flere returverdier (int og error)
+// Brukes ofte som her for å returnere verdien og en evt. feil
 type Writer interface {
   Write(p []byte) (n int, err error)
 }
@@ -196,7 +199,7 @@ m.Get("/api/feed", FetchFeeds)
 http.ListenAndServe(":8080", m)
 ```
 
-```FetchFeeds``` er en funksjon med en signatur som gjør at den kan bli sendt inn som argument til ```Get```. Som vi ser støtter Go å sende inn funksjoner som argument til andre funksjoner, såkalt [First class function](http://en.wikipedia.org/wiki/First-class_function). *FetchFeeds* ser slik ut (med litt pseduokode). Dette er egentlig alt
+```FetchFeeds``` er en funksjon med en signatur som gjør at den kan bli sendt inn som argument til ```Get```. Som vi ser støtter Go å sende inn funksjoner som argument til andre funksjoner, såkalt [First class function](http://en.wikipedia.org/wiki/First-class_function). ```FetchFeeds``` ser slik ut (med litt pseduokode).
 
 ```go
 func FetchFeeds(writer http.ResponseWriter, request *http.Request) {
@@ -209,7 +212,7 @@ func FetchFeeds(writer http.ResponseWriter, request *http.Request) {
 }
 ```
 
-Vi skal gå litt mer i detalj på funksjonen ```FetchFeeds``` og delen ```hent og oppdater alle feeds```. Denne er ansvarlig for å hente alle feedsene som brukeren har lagret, oppdatere disse og sende resultatet tilbake til klienten. Tanken bak implementasjonen er å se gjennom alle feeds vi skal oppdatere. For hver feed setter vi i gang en go-rutine som oppdaterer feeden og returnerer den oppdaterte feeden, eller en feil hvis noe har gått galt under hentingen. Hvis brukeren for eksempel har lagret 100 feeds vil programmet starte opp 100 go-rutiner som vil jobbe i parallell for å hente innholdet. Men hvordan kan vi synkronisere disse rutinene, og returnere resultatet til klienten når alle er ferdig? Til dette kan vi bruke en kanal.
+Vi skal gå litt mer i detalj på funksjonen ```FetchFeeds``` og delen ```hent og oppdater alle feeds```. Denne delen er ansvarlig for å hente alle feedsene som brukeren har lagret, oppdatere disse og sende resultatet tilbake til. Tanken bak implementasjonen er å se gjennom alle feeds vi skal oppdatere. For hver feed setter vi i gang en go-rutine som oppdaterer feeden og returnerer den oppdaterte feeden, eller den gamle feeden og en feil hvis noe har gått galt under hentingen. Hvis brukeren for eksempel har lagret 100 feeds vil programmet starte opp 100 go-rutiner som vil jobbe i parallell for å hente innholdet. Men hvordan kan vi synkronisere disse rutinene, og returnere resultatet til klienten når alle er ferdig? Til dette kan vi bruke en kanal.
 
 Hver enkelt go-rutine vil legge resultatet av forespørselen på én kanal. Dermed kan vi lytte på denne kanalen og hente ut meldingene etterhvert som de ulike go-rutinene legger meldinger på denne kanalen. Når vi har fått like mange meldinger tilbake som antall go-rutiner vi startet, vet vi at vi er ferdig og vi kan returnere hele resultatet (alle feedene) til klienten. Nedenfor vises den aktuelle delen av koden som utfører dette. En ```select case``` fungerer på samme måte som en ```switch case```, hvor vi velger det caset der det ligger en melding på kanalen.
 
@@ -240,7 +243,7 @@ for {
 }
 ```
 
-Det er selvfølgelig mange mulige implementasjoner av løsningen ovenfor, og jeg har jeg utelatt litt feilhåndtering for å gjøre koden enklere. Samtidig synes jeg løsningen presentert har en del interessante sider som kan være verdt å ta med seg videre. Spesielt hvordan vi etter å ha satt i gang oppdateringen av alle feedene brukeren en kanal til å hente ut en og en feed.
+Jeg har bevisst utelatt litt feilhåndtering fra koden over for å gjøre den enklere å lese, men selv med dette synes jeg koden er kompakt og enkel å forstå. Sammenlignet med hvordan dette kunne blitt løst med andre teknikker som tråder og semaforer eller *callbacks* så synes jeg løsningen over rett og slett er ganske elegant. Det er selvfølgelig mange mulige implementasjoner av løsningen ovenfor, men jeg synes løsningen presentert har en del interessante sider som kan være verdt å ta med seg videre.
 
 # Deploy til Heroku eller Google App Engine
 Nå som du har sett hvordan vi kan lage en HTTP-backend i Go, er du forhåpentligvis interessert i å deploye dette slik at man kan ta det i bruk. Både Heroku og Google App Engine har støtte for å deploy Go-applikasjoner (Heroku gjennom en ekstern [buildpack](https://github.com/kr/heroku-buildpack-go)). Selv om det er mulig å deploye til begge plattformer, er det en del [forskjeller](http://james-eady.com/blog/2013/08/06/hosted-golang-heroku-vs-google-app-engine) hvor den viktigste er at Google App Engine krever at du må bruke flere egne biblioteker tilpasset App Engine for å deploye applikasjonen din, mens man på Heroku kan bruke Go sine standard bibliotek. 
