@@ -3,8 +3,6 @@
 # Introduksjon
 Go er laget av Robert Griesemer, Rob Pike og Ken Thompson med Google i ryggen. Den første offisielle versjonen ble sluppet i 2009 og språket er nå i versjon 1.2. Språket prøver å bygge en bro mellom effektive, statisk typede språk og produktive, dynamiske språk, og kommer med kraftige verktøy og et rikt standardbibliotek. Sammen med Go sin modell for parallellitet gjør dette at man enkelt skal kunne skrive applikasjoner med høy ytelse.
 
-Go kompilerer til maskinkode, og resultatet er en binary som man kan kjøre på den plattformen man har kompilert programmet for. Videre har Go statisk linking av biblioteker, det vil si at alle bibliotekene programmet ditt bruker blir pakket sammen med den eksekverbare versjonen av programmet. Den store fordelen med dette er at man ikke har noen dynamiske avhengigheter som må være på plass på maskinen hvor programmet kjører.
-
 Et av de viktigste målene utviklerne av Go hadde, var å lage Go "enkelt". I denne sammenhengen betyr enkelt at språket skulle ha få egenskaper, og de egenskapene språket fikk skulle være velbegrunnet og ikke bare være med fordi andre språk hadde de egenskapene. For eksempel har Go ingen muligheter for arv i tradisjonell forstand, ingen generics og bare én type løkker. Ved første øyekast kan språket muligens virke enkelt med få muligheter sammenlignet med andre språk. Men etterhvert som man jobber med det, vil man se at selv med begrensede egenskaper er språket veldig kraftig.
 
 Noen av de viktigste egenskapene til Go kan oppsumeres som følgende punkter
@@ -18,16 +16,16 @@ Noen av de viktigste egenskapene til Go kan oppsumeres som følgende punkter
 * God dokumentasjon
 
 # Installasjon
-Go har støtte for de fleste plattformer og lastes ned fra [Go](http://golang.com.) sine sider. Etter installasjonen har man tilgang til kommandoen ```go```, og kan dermed utføre følgende kommandoer.
+Go har støtte for de fleste plattformer (blant annet Windows, Mac, Linux) og lastes ned fra [Go](http://golang.com) sine sider. Etter installasjonen har man tilgang til kommandoen ```go```, og kan dermed utføre følgende kommandoer.
 
 ```
 // Kompilerer og kjører programmet hello.go.
 go run hello.go
 
-// Kompilerer alle go filer i mappen du står og lager en eksekverbar fil
+// Kompilerer alle go-filer i mappen du står og lager en eksekverbar fil
 go install
 
-// Formaterer alle go filer i mappen du står til å følge Go sin kodestandard
+// Formaterer alle go-filer i mappen du står til å følge Go sin kodestandard
 go fmt
 
 // Installerer den eksterne pakke Martini som ligger på GitHub
@@ -37,8 +35,10 @@ go get github.com/codegangsta/martini
 godoc -http=6060
 ```
 
+Go kompilerer til maskinkode, og resultatet er en binary som man kan kjøre på den plattformen man har kompilert programmet for. Videre har Go statisk linking av biblioteker, det vil si at alle bibliotekene programmet ditt bruker blir pakket sammen med den eksekverbare binaryen. Den store fordelen med dette er at man ikke har noen dynamiske avhengigheter som må være på plass på maskinen hvor programmet kjører.
+
 # Syntaks
-Så hvordan ser egentlig Go-kode ut? Syntaksen til Go er sterkt inspirert av C, og hvis du har jobbet litt med det språket vil du nok kjenne igjen en del ting. Eksempelet nedenfor viser et lite program som legger sammen to tall og skriver dette til konsollet.
+Så hvordan ser egentlig Go-kode ut? Syntaksen til Go er sterkt inspirert av C, og hvis du har jobbet litt med det språket vil du nok kjenne igjen en del ting. Eksempelet nedenfor viser et lite program som legger sammen to tall og skriver dette til konsollen.
 
 ```go
 package main
@@ -56,14 +56,14 @@ func main() {
 
 Noen umiddelbare forskjeller mellom Go og mer tradisjonelle språk er at typen til en variabel kommer *etter* navnet til variabelen. Det samme gjelder for parametre til funksjoner. En annen ting som gjør Go annerledes er måten det skilles mellom variabler som er tilgjengelig innenfor samme pakke, og variabler som er tilgjengelig utenfor pakken. Man bruker ikke nøkkelord (som *private* og *public* i Java), men variabler og funksjoner som starter med stor forbokstav er tilgjengelig utenfor pakken, mens variabler og funksjoner med liten forbokstav kun er tilgjengelig innenfor den pakken de er deklarert i.
 
-I eksempelet over er dermed funksjonen ```add``` kun tilgjenlig innenfor pakken ```main```. Vi legger også merke til at programmet importerer pakken ```fmt```. ```fmt``` er en pakke som følger med i distribusjonen av Go og brukes her til å skrive til konsollet. Hvis vi lagrer programmet i filen ```add.go``` kan vi kjøre programmet med følgende kommando.
+I eksempelet over er dermed funksjonen ```add``` kun tilgjenlig innenfor pakken ```main```. Vi legger også merke til at programmet importerer pakken ```fmt```. ```fmt``` er en pakke som følger med i distribusjonen av Go og brukes her til å skrive til konsollen. Hvis vi lagrer programmet i filen ```add.go``` kan vi kjøre programmet med følgende kommando.
 
 ```
 go add.go
 ```
 
 # Structs og interface
-Go har ingen klasser slik vi kjenner fra språk som Java og C#, men man bruker *structs* (kjent fra blant annet C) for å deklarere typer. Eksempelet nedenfor viser hvordan vi kan definere en type ```Page``` og en funksjon som kan kalles på denne typen ```SetBody```. Siden Go ikke har klasser har man heller ikke metoder, men man kan definere funksjoner som kan kalles av en struct. Til slutt ser vi hvordan vi kan opprette en instans av ```Page``` med den innebygde funksjonen ```new```. Denne funksjonen vil allokere minne til typen og returnere en peker (addressen til hvor i minne objektet ligger) til objektet.
+Go har ingen klasser slik vi kjenner fra språk som Java og C#, men man bruker *structs* (kjent fra blant annet C) for å deklarere typer. Eksempelet nedenfor viser hvordan vi kan definere en type ```Page``` og en funksjon som kan kalles på denne typen ```SetBody```. Siden Go ikke har klasser har man heller ikke metoder, men man kan definere funksjoner som kan kalles på en struct. Til slutt ser vi hvordan vi kan opprette en instans av ```Page``` med den innebygde funksjonen ```new```. Denne funksjonen vil allokere minne til typen og returnere en peker (addressen til hvor i minne objektet ligger) til objektet.
 
 ```go
 type Page struct {
@@ -80,19 +80,27 @@ page := new(Page)
 page.SetBody("my new message")
 ```
 
-I tillegg til *structs* har Go *interface* hvor man definerer et sett med metoder som en type må ha for å implementere dette interfacet. I mange språk vil en klasse eller type eksplisitt implementere et eller flere interface (i Java gjennom nøkkelordet *implements*). I Go sier man derimot at så lenge en type *T* har de samme funksjonene (med samme signatur) som interface *I* har deklarert, implementerer *T* interface *I* uten at dette trenger å deklareres eksplisitt. Eksempelet nedenfor viser hvordan vi kan lage vår egen ```ConsoleWriter```som implementerer Go sitt innerbygde interface ```Writer```.
+I tillegg til *structs* har Go *interface* hvor man definerer et sett med metoder som en type må ha for å implementere dette interfacet. I mange språk vil en klasse eller type eksplisitt implementere et eller flere interface (i Java gjennom nøkkelordet *implements*). I Go sier man derimot at så lenge en type har de samme funksjonene (med samme signatur) som et interface har deklarert, så implementerer typen det interfacet. Og det trenger ikke å deklareres eksplisitt. Eksempelet nedenfor viser hvordan vi kan lage vår egen ```ConsoleWriter```som implementerer Go sitt innerbygde interface ```Writer```.
 
 ```go
 // Go sitt interface Writer
-// Legg merke til at Go støtter flere returverdier (int og error)
+
+// Legg merke til at Go støtter 
+// flere returverdier (int og error)
+
 // Brukes ofte som her for å returnere verdien og en evt. feil
 type Writer interface {
   Write(p []byte) (n int, err error)
 }
 
-// Deklarerer typen ConsoleWriter med én funksjon Write() med samme signatur som interface Writer
-// Go ser ved kompileringstid at ConsoleWriter implementerer Writer
-// Legg merke til at det ikke er noen eksplisitt kobling mellom ConsoleWriter og Writer
+// Deklarerer typen ConsoleWriter med 
+// én funksjon Write() med samme signatur som interface Writer
+
+// Go ser ved kompileringstid at 
+// ConsoleWriter implementerer Writer
+
+// Legg merke til at det ikke er noen 
+// eksplisitt kobling mellom ConsoleWriter og Writer
 type ConsoleWriter struct{}
 
 func (cw *ConsoleWriter) Write(p []byte) (n int, err error) {
@@ -101,9 +109,12 @@ func (cw *ConsoleWriter) Write(p []byte) (n int, err error) {
 }
 
 // Oppretter en ConsoleWriter
-// Sender så referansen til metoden Fprintf som tar i mot alle Writer-objekter
+
+// Sender så referansen til metoden 
+// Fprintf som tar i mot alle Writer-objekter
+
 // Fprintf vil igjen kalle Write på ConsoleWriter-objektet
-// Resultatet blir at meldingen blir skrevet til konsollet.
+// Resultatet blir at meldingen blir skrevet til konsollen.
 func main() {
 	cw := new(ConsoleWriter)
 	fmt.Fprintf(cw, "Tester min egen ConsoleWriter")
@@ -124,14 +135,15 @@ my_chan := make(chan int)
 // Sender en verdi på kanalen
 my_chan <- 1
 
-// Venter på svar og lagrer verdien i en variabel
+// Venter på svar fra en annen go-rutine 
+// og lagrer verdien i en variabel
 a := <- my_chan
 
 // Starter my_function som en go-rutine
 go my_function()
 ```
 
-Det å opprette en kanal og sende en melding på denne, er såkalte ikke-blokkerende operasjoner, det vil si at programmet vil utføre disse to operasjonene og så fortsette umiddelbart. Derimot så er det å vente på svar fra en kanal en blokkerende operasjon. Det vil si at programmet ovenfor vil blokkere helt til det faktisk ligger data på kanalen ```my_chan``` og først da vil programmet hente ut denne verdien og lagre den i variabelen ```a```. Det er også vært å legge merke til at ```my_function``` er en helt vanlig funksjon uten noen spesielle egenskaper, og hvis vi hadde fjernet ```go``` foran kallet til funksjonen hadde vi utført et vanlig synkront funksjonskall.
+Det å opprette en kanal og sende en melding på denne, er såkalte ikke-blokkerende operasjoner, det vil si at programmet vil utføre disse to operasjonene og så fortsette umiddelbart. Derimot så er det å vente på svar fra en kanal en blokkerende operasjon. Det vil si at programmet ovenfor vil blokkere helt til det faktisk ligger data på kanalen ```my_chan``` og først da vil programmet hente ut denne verdien og lagre den i variabelen ```a```. Det er også verdt å legge merke til at ```my_function``` er en helt vanlig funksjon uten noen spesielle egenskaper, og hvis vi hadde fjernet ```go``` foran kallet til funksjonen hadde vi utført et vanlig synkront funksjonskall.
 
 Kunnskapen om at en go-rutine vil blokkere når den venter på data fra en kanal, brukes ofte til å synkronisere en eller flere go-rutiner slik at de utfører en oppgave annenhver gang. Eksempelet nedenfor viser nettopp dette. 
 
@@ -172,7 +184,7 @@ Etter pakkedeklarasjonen og importering av noen pakker, starter vi med å define
 
 Funksjonen ```player``` tar i mot navnet på spilleren, samt kanalen ```table```. Funksjonen inneholder en evig løkke som vil utføres så lenge programmet kjører. Første linjen i løkka venter på at det kommer en melding på kanalen ```table``` og lagrer så denne verdien i variabelen ```ball```. Videre øker vi antall treff, og skriver ut status før vi sender en melding tilbake på ```table``` (programmet sover i 300 millisekunder kun for å få en bedre visuell effekt av programutskriften).
 
-Begge go-rutinene vil først stå å vente på at det skal komme en melding på kanalen ```table```. I main-funksjonen starter vi selve spillet med å sende en melding på ```table```. Spilleren ```ping``` vil først hente ut denne meldingen, øke antall treff, før den til slutt legger ballen tilbake på bordet. Deretter vil ```pong``` stå å vente på en melding fra ```table``` og vil utføre samme operasjoner. ```ping``` og ```pong``` vil så kjøre annenhver gang.
+Begge go-rutinene vil først stå og vente på at det skal komme en melding på kanalen ```table```. I main-funksjonen starter vi selve spillet med å sende en melding på ```table```. Spilleren ```ping``` vil først hente ut denne meldingen, øke antall treff, før den til slutt legger ballen tilbake på bordet. Deretter vil ```pong``` stå og vente på en melding fra ```table``` og vil utføre samme operasjoner. ```ping``` og ```pong``` vil så kjøre annenhver gang.
 
 I main-funksjonen sover vi så i et par sekunder (mens ```ping``` og ```pong``` spiller) før vi fjerner meldingen fra ```table``` og forkaster denne. Dermed vil programmet avsluttes. Utskriften fra programmet vil være som følger
 
@@ -252,7 +264,7 @@ Nå som du har sett hvordan vi kan lage en HTTP-backend i Go, er du forhåpentli
 Personlig vil jeg anbefale å følge denne [guiden](http://mmcgrana.github.io/2012/09/getting-started-with-go-on-heroku.html) for en stegvis guide for å deploye til Heroku. Hvis du er interessert i å se på deploy til Google App Engine anbefaler jeg Google sin egen [dokumentasjon](https://developers.google.com/appengine/docs/go/).
 
 # Oppsummering
-Gjennom denne bloggposten har jeg vist hvordan man laster ned og installerer Go, kjører Go programmer og vist flere eksempler skrevet i Go. Jeg har også vist et bruksområde jeg mener Go egner seg godt til, nemlig som en HTTP-backend. I dag ser vi flere og flere eksempler på arkitekturer bestående av såkalte mikrotjenester, små tjenester/applikasjoner som gjør én ting. I motsetning til tidligere hvor det var vanligere med monolittiske applikasjoner som skulle utføre "alt". I denne konteksten mener jeg at Go er et interessant språk som det er vært å følge med på den videre utviklingen til. I tillegg skiller Go seg en del ut fra mer tradisjonelle språk, og det kan være vært å lære seg Go av den enkle grunn at man vil lære seg litt nye måter og tenke på, som man kanskje til og med kan ta med seg inn i sitt "eget" språk i hverdagen.
+Gjennom denne bloggposten har jeg vist hvordan man laster ned og installerer Go, kjører Go programmer og vist flere eksempler skrevet i Go. Jeg har også vist et bruksområde jeg mener Go egner seg godt til, nemlig som en HTTP-backend. I dag ser vi flere og flere eksempler på arkitekturer bestående av såkalte mikrotjenester, små tjenester/applikasjoner som gjør én ting. I motsetning til tidligere hvor det var vanligere med monolittiske applikasjoner som skulle utføre "alt". I denne konteksten mener jeg at Go er et interessant språk som det er verdt å følge med på den videre utviklingen til. I tillegg skiller Go seg en del ut fra mer tradisjonelle språk, og det kan være verdt å lære seg Go av den enkle grunn at man vil lære seg litt nye måter og tenke på, som man kanskje til og med kan ta med seg inn i sitt "eget" språk i hverdagen.
 
 Hvis du har lyst til å lære mer om Go, og prøve Go selv så anbefaler jeg følgende ressurser:
 
