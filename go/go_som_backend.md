@@ -126,8 +126,7 @@ my_chan := make(chan int)
 // Sender en verdi på kanalen
 my_chan <- 1
 
-// Venter på svar fra en annen go-rutine 
-// og lagrer verdien i en variabel
+// Venter på svar fra en annen go-rutine og lagrer verdien i en variabel
 a := <- my_chan
 
 // Starter my_function som en go-rutine
