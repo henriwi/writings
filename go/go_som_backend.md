@@ -84,23 +84,17 @@ I tillegg til *structs* har Go *interface* hvor man definerer et sett med metode
 
 ```go
 // Go sitt interface Writer
-
-// Legg merke til at Go støtter 
-// flere returverdier (int og error)
-
+// Legg merke til at Go støtter flere returverdier (int og error)
 // Brukes ofte som her for å returnere verdien og en evt. feil
 type Writer interface {
   Write(p []byte) (n int, err error)
 }
 
-// Deklarerer typen ConsoleWriter med 
-// én funksjon Write() med samme signatur som interface Writer
-
-// Go ser ved kompileringstid at 
-// ConsoleWriter implementerer Writer
-
-// Legg merke til at det ikke er noen 
-// eksplisitt kobling mellom ConsoleWriter og Writer
+// Deklarerer typen ConsoleWriter med én funksjon Write()
+// med samme signatur som interface Writer
+// Go ser ved kompileringstid at ConsoleWriter implementerer Writer
+// Legg merke til at det ikke er noen eksplisitt kobling 
+// mellom ConsoleWriter og Writer
 type ConsoleWriter struct{}
 
 func (cw *ConsoleWriter) Write(p []byte) (n int, err error) {
@@ -109,10 +103,7 @@ func (cw *ConsoleWriter) Write(p []byte) (n int, err error) {
 }
 
 // Oppretter en ConsoleWriter
-
-// Sender så referansen til metoden 
-// Fprintf som tar i mot alle Writer-objekter
-
+// Sender så referansen til metoden Fprintf som tar i mot alle Writer-objekter
 // Fprintf vil igjen kalle Write på ConsoleWriter-objektet
 // Resultatet blir at meldingen blir skrevet til konsollen.
 func main() {
