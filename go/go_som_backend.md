@@ -1,3 +1,4 @@
+<!--Intro til BEKK Open-->
 <!--Go er et programmeringsspråk som er utviklet av Google og har fokus på enkelhet, stabilitet og ytelse. I denne bloggposten vil jeg vise hvordan du kan komme i gang med Go, vise noen eksempler og vise hvordan man kan skrive en HTTP-backend i Go og deploye denne til Heroku. Forhåpentligvis vil dette inspirere deg til å teste ut Go selv, og at du også merker hvor gøy det er å jobbe med Go!-->
 
 # Introduksjon
@@ -264,3 +265,6 @@ Hvis du har lyst til å lære mer om Go og prøve Go selv så anbefaler jeg føl
 * Go Concurrency Patterns (Google IO 2012): http://www.youtube.com/watch?v=f6kdp27TYZs
 * Advanced Go Concurrency Patterns (Google IO 2013): http://www.youtube.com/watch?v=QDDwwePbDtw
 * Se hvem som bruker Go: https://code.google.com/p/go-wiki/wiki/SuccessStories
+
+Forsidebildet er hentet fra [Golang](http://golang.org/doc/gopher/)  
+Koden som henter feeds er inspirert av koden til [Matt Aimonetti](http://matt.aimonetti.net/posts/2012/11/27/real-life-concurrency-in-go/)
