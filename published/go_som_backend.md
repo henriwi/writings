@@ -247,7 +247,7 @@ for {
 }
 ```
 
-Jeg har bevisst utelatt litt feilhåndtering fra koden over for å gjøre den enklere å lese, men selv med dette synes jeg koden er kompakt og enkel å forstå. Sammenlignet med hvordan dette kunne blitt løst med andre teknikker, som tråder og semaforer eller *callbacks*, så synes jeg løsningen over rett og slett er ganske elegant. Det er selvfølgelig mange mulige implementasjoner av løsningen ovenfor, men jeg synes den presenterte løsningen har en del interessante sider som kan være verdt å ta med seg videre.
+Jeg har bevisst utelatt litt feilhåndtering fra koden over for å gjøre den enklere å lese, men selv med dette synes jeg koden er kompakt og enkel å forstå. Sammenlignet med hvordan dette kunne blitt løst med andre teknikker, så synes jeg løsningen over rett og slett er ganske elegant. Det er selvfølgelig mange mulige implementasjoner av løsningen ovenfor, men jeg synes den presenterte løsningen har en del interessante sider som kan være verdt å ta med seg videre.
 
 # Deploy til Heroku eller Google App Engine
 Nå som du har sett hvordan vi kan lage en HTTP-backend i Go, er du forhåpentligvis interessert i å deploye dette slik at man kan ta det i bruk. Både Heroku og Google App Engine har støtte for å deploye Go-applikasjoner (Heroku gjennom en ekstern [buildpack](https://github.com/kr/heroku-buildpack-go)). Selv om det er mulig å deploye til begge plattformer, er det en del [forskjeller](http://james-eady.com/blog/2013/08/06/hosted-golang-heroku-vs-google-app-engine) hvor den viktigste er at Google App Engine krever at du må bruke flere egne biblioteker tilpasset App Engine for å deploye applikasjonen din, mens man på Heroku kan bruke Go sine standardbiblioteker. 
