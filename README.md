@@ -1,3 +1,3 @@
 Writings
 ========
-Unpublished blogposts
+Blogposts (published and unpublished)
